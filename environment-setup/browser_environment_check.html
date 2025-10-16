@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Browser Environment Check</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #0066cc;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 5px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .demo-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 JavaScript Browser Environment Check</h1>
+        
+        <div class="test-section">
+            <h2>1. Browser Information</h2>
+            <div id="browser-info"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. JavaScript Feature Support</h2>
+            <div id="feature-support"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Web APIs Availability</h2>
+            <div id="web-apis"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. DOM Manipulation Test</h2>
+            <button onclick="testDOMManipulation()">Test DOM Manipulation</button>
+            <div id="dom-test-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>5. Event Handling Test</h2>
+            <button onclick="testEventHandling()">Test Event Handling</button>
+            <div id="event-test-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>6. Local Storage Test</h2>
+            <button onclick="testLocalStorage()">Test Local Storage</button>
+            <div id="storage-test-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>7. AJAX/Fetch Test</h2>
+            <button onclick="testFetchAPI()">Test Fetch API</button>
+            <div id="fetch-test-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>8. Console Output</h2>
+            <div id="console-output" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to capture output
+        let consoleOutput = '';
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            const message = args.join(' ') + '\n';
+            consoleOutput += message;
+            document.getElementById('console-output').textContent = consoleOutput;
+            originalConsoleLog.apply(console, args);
+        };
+
+        // Helper function to create test result elements
+        function createTestResult(name, passed, details = '') {
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            div.innerHTML = `
+                <strong>${name}</strong>: ${passed ? '✅ Supported' : '❌ Not Supported'}
+                ${details ? `<br><small>${details}</small>` : ''}
+            `;
+            return div;
+        }
+
+        // 1. Browser Information
+        function displayBrowserInfo() {
+            const info = document.getElementById('browser-info');
+            
+            const browserData = {
+                'User Agent': navigator.userAgent,
+                'Browser': getBrowserName(),
+                'Version': getBrowserVersion(),
+                'Platform': navigator.platform,
+                'Language': navigator.language,
+                'Cookies Enabled': navigator.cookieEnabled,
+                'Online': navigator.onLine,
+                'Screen Resolution': `${screen.width}x${screen.height}`,
+                'Viewport Size': `${window.innerWidth}x${window.innerHeight}`,
+                'Color Depth': `${screen.colorDepth}-bit`
+            };
+
+            for (const [key, value] of Object.entries(browserData)) {
+                const div = document.createElement('div');
+                div.className = 'test-result info';
+                div.innerHTML = `<strong>${key}</strong>: ${value}`;
+                info.appendChild(div);
+            }
+        }
+
+        function getBrowserName() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome')) return 'Chrome';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Safari')) return 'Safari';
+            if (ua.includes('Edge')) return 'Edge';
+            if (ua.includes('Opera')) return 'Opera';
+            return 'Unknown';
+        }
+
+        function getBrowserVersion() {
+            const ua = navigator.userAgent;
+            const match = ua.match(/(Chrome|Firefox|Safari|Edge|Opera)\/(\d+)/);
+            return match ? match[2] : 'Unknown';
+        }
+
+        // 2. JavaScript Feature Support
+        function testJavaScriptFeatures() {
+            const features = document.getElementById('feature-support');
+            
+            const featureTests = {
+                'ES6 Arrow Functions': () => {
+                    try {
+                        const test = () => 'supported';
+                        return test() === 'supported';
+                    } catch (e) { return false; }
+                },
+                'ES6 Template Literals': () => {
+                    try {
+                        const name = 'test';
+                        return `Hello ${name}` === 'Hello test';
+                    } catch (e) { return false; }
+                },
+                'ES6 Destructuring': () => {
+                    try {
+                        const [a, b] = [1, 2];
+                        return a === 1 && b === 2;
+                    } catch (e) { return false; }
+                },
+                'ES6 Classes': () => {
+                    try {
+                        class TestClass {}
+                        return typeof TestClass === 'function';
+                    } catch (e) { return false; }
+                },
+                'Promises': () => {
+                    try {
+                        return typeof Promise !== 'undefined';
+                    } catch (e) { return false; }
+                },
+                'Async/Await': () => {
+                    try {
+                        eval('(async function() {})');
+                        return true;
+                    } catch (e) { return false; }
+                },
+                'Map and Set': () => {
+                    try {
+                        return typeof Map !== 'undefined' && typeof Set !== 'undefined';
+                    } catch (e) { return false; }
+                },
+                'Symbol': () => {
+                    try {
+                        return typeof Symbol !== 'undefined';
+                    } catch (e) { return false; }
+                },
+                'Modules (Static)': () => {
+                    return typeof document.createElement('script').noModule === 'boolean';
+                },
+                'WeakMap and WeakSet': () => {
+                    try {
+                        return typeof WeakMap !== 'undefined' && typeof WeakSet !== 'undefined';
+                    } catch (e) { return false; }
+                }
+            };
+
+            for (const [feature, test] of Object.entries(featureTests)) {
+                const passed = test();
+                features.appendChild(createTestResult(feature, passed));
+            }
+        }
+
+        // 3. Web APIs Availability
+        function testWebAPIs() {
+            const apis = document.getElementById('web-apis');
+            
+            const webAPIs = {
+                'Fetch API': () => typeof fetch !== 'undefined',
+                'Local Storage': () => typeof localStorage !== 'undefined',
+                'Session Storage': () => typeof sessionStorage !== 'undefined',
+                'Geolocation': () => 'geolocation' in navigator,
+                'File API': () => typeof FileReader !== 'undefined',
+                'Canvas API': () => {
+                    const canvas = document.createElement('canvas');
+                    return !!(canvas.getContext && canvas.getContext('2d'));
+                },
+                'WebGL': () => {
+                    const canvas = document.createElement('canvas');
+                    try {
+                        return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+                    } catch (e) { return false; }
+                },
+                'Web Workers': () => typeof Worker !== 'undefined',
+                'Service Workers': () => 'serviceWorker' in navigator,
+                'Push Notifications': () => 'Notification' in window,
+                'History API': () => !!(window.history && window.history.pushState),
+                'WebSockets': () => typeof WebSocket !== 'undefined',
+                'IndexedDB': () => 'indexedDB' in window,
+                'Media Queries': () => typeof window.matchMedia !== 'undefined',
+                'Clipboard API': () => 'clipboard' in navigator
+            };
+
+            for (const [api, test] of Object.entries(webAPIs)) {
+                const supported = test();
+                apis.appendChild(createTestResult(api, supported));
+            }
+        }
+
+        // 4. DOM Manipulation Test
+        function testDOMManipulation() {
+            const output = document.getElementById('dom-test-output');
+            output.innerHTML = '';
+            
+            try {
+                // Create elements
+                const testDiv = document.createElement('div');
+                testDiv.id = 'test-element';
+                testDiv.innerHTML = '<p>Original content</p>';
+                testDiv.style.padding = '10px';
+                testDiv.style.backgroundColor = '#e9ecef';
+                testDiv.style.border = '1px solid #dee2e6';
+                testDiv.style.borderRadius = '4px';
+                testDiv.style.marginTop = '10px';
+                
+                output.appendChild(testDiv);
+                
+                // Test element selection
+                const selected = document.getElementById('test-element');
+                
+                // Test content modification
+                const paragraph = selected.querySelector('p');
+                paragraph.textContent = 'Content modified successfully!';
+                
+                // Test style manipulation
+                paragraph.style.color = '#28a745';
+                paragraph.style.fontWeight = 'bold';
+                
+                // Test event handling
+                testDiv.addEventListener('click', function() {
+                    this.style.backgroundColor = '#d4edda';
+                    paragraph.textContent = 'Clicked! Event handling works!';
+                });
+                
+                // Add instructions
+                const instructions = document.createElement('p');
+                instructions.innerHTML = '<em>Click the box above to test event handling</em>';
+                instructions.style.fontSize = '12px';
+                instructions.style.color = '#666';
+                output.appendChild(instructions);
+                
+                console.log('DOM Manipulation Test: ✅ Passed');
+                
+            } catch (error) {
+                output.innerHTML = `<div class="test-result fail">DOM Manipulation Test Failed: ${error.message}</div>`;
+                console.log('DOM Manipulation Test: ❌ Failed');
+            }
+        }
+
+        // 5. Event Handling Test
+        function testEventHandling() {
+            const output = document.getElementById('event-test-output');
+            output.innerHTML = '';
+            
+            try {
+                const testButton = document.createElement('button');
+                testButton.textContent = 'Click me!';
+                testButton.style.margin = '10px 5px';
+                
+                const testInput = document.createElement('input');
+                testInput.type = 'text';
+                testInput.placeholder = 'Type something...';
+                testInput.style.margin = '10px 5px';
+                testInput.style.padding = '8px';
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.style.marginTop = '10px';
+                resultDiv.style.padding = '10px';
+                resultDiv.style.backgroundColor = '#f8f9fa';
+                resultDiv.style.border = '1px solid #dee2e6';
+                resultDiv.style.borderRadius = '4px';
+                
+                // Button click event
+                testButton.addEventListener('click', function() {
+                    resultDiv.innerHTML += '<div>✅ Button click event triggered</div>';
+                });
+                
+                // Input events
+                testInput.addEventListener('input', function(e) {
+                    resultDiv.innerHTML += `<div>✅ Input event: "${e.target.value}"</div>`;
+                });
+                
+                testInput.addEventListener('focus', function() {
+                    resultDiv.innerHTML += '<div>✅ Focus event triggered</div>';
+                });
+                
+                testInput.addEventListener('blur', function() {
+                    resultDiv.innerHTML += '<div>✅ Blur event triggered</div>';
+                });
+                
+                output.appendChild(testButton);
+                output.appendChild(testInput);
+                output.appendChild(resultDiv);
+                
+                console.log('Event Handling Test: ✅ Setup Complete');
+                
+            } catch (error) {
+                output.innerHTML = `<div class="test-result fail">Event Handling Test Failed: ${error.message}</div>`;
+                console.log('Event Handling Test: ❌ Failed');
+            }
+        }
+
+        // 6. Local Storage Test
+        function testLocalStorage() {
+            const output = document.getElementById('storage-test-output');
+            output.innerHTML = '';
+            
+            try {
+                const testKey = 'js_env_test';
+                const testValue = { message: 'Hello Storage!', timestamp: Date.now() };
+                
+                // Test localStorage
+                localStorage.setItem(testKey, JSON.stringify(testValue));
+                const retrieved = JSON.parse(localStorage.getItem(testKey));
+                
+                let results = '<div class="demo-section">';
+                
+                if (retrieved && retrieved.message === testValue.message) {
+                    results += '<div class="test-result pass">✅ localStorage write/read test passed</div>';
+                } else {
+                    results += '<div class="test-result fail">❌ localStorage write/read test failed</div>';
+                }
+                
+                // Test sessionStorage
+                sessionStorage.setItem(testKey, JSON.stringify(testValue));
+                const sessionRetrieved = JSON.parse(sessionStorage.getItem(testKey));
+                
+                if (sessionRetrieved && sessionRetrieved.message === testValue.message) {
+                    results += '<div class="test-result pass">✅ sessionStorage write/read test passed</div>';
+                } else {
+                    results += '<div class="test-result fail">❌ sessionStorage write/read test failed</div>';
+                }
+                
+                // Show storage contents
+                results += `<div style="margin-top: 10px;"><strong>Stored Data:</strong></div>`;
+                results += `<div style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 4px;">`;
+                results += `localStorage: ${JSON.stringify(retrieved, null, 2)}<br>`;
+                results += `sessionStorage: ${JSON.stringify(sessionRetrieved, null, 2)}`;
+                results += '</div></div>';
+                
+                output.innerHTML = results;
+                
+                // Cleanup
+                localStorage.removeItem(testKey);
+                sessionStorage.removeItem(testKey);
+                
+                console.log('Local Storage Test: ✅ Passed');
+                
+            } catch (error) {
+                output.innerHTML = `<div class="test-result fail">Local Storage Test Failed: ${error.message}</div>`;
+                console.log('Local Storage Test: ❌ Failed');
+            }
+        }
+
+        // 7. Fetch API Test
+        function testFetchAPI() {
+            const output = document.getElementById('fetch-test-output');
+            output.innerHTML = '<div class="info">Testing Fetch API...</div>';
+            
+            if (typeof fetch === 'undefined') {
+                output.innerHTML = '<div class="test-result fail">❌ Fetch API not supported</div>';
+                return;
+            }
+            
+            // Test with a public API that supports CORS
+            fetch('https://jsonplaceholder.typicode.com/posts/1')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    output.innerHTML = `
+                        <div class="test-result pass">✅ Fetch API test passed</div>
+                        <div class="demo-section">
+                            <strong>Sample API Response:</strong>
+                            <div style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 5px;">
+                                ${JSON.stringify(data, null, 2)}
+                            </div>
+                        </div>
+                    `;
+                    console.log('Fetch API Test: ✅ Passed');
+                })
+                .catch(error => {
+                    output.innerHTML = `
+                        <div class="test-result fail">❌ Fetch API test failed</div>
+                        <div style="color: #721c24; font-size: 12px; margin-top: 5px;">
+                            Error: ${error.message}
+                        </div>
+                    `;
+                    console.log('Fetch API Test: ❌ Failed -', error.message);
+                });
+        }
+
+        // Initialize all tests when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== JavaScript Browser Environment Check ===');
+            console.log('Starting environment validation...');
+            
+            displayBrowserInfo();
+            testJavaScriptFeatures();
+            testWebAPIs();
+            
+            console.log('Basic tests completed. Use buttons to run interactive tests.');
+            console.log('=============================================');
+        });
+    </script>
+</body>
+</html>
