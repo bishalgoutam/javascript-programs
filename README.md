@@ -175,7 +175,6 @@ Feel free to contribute by:
 
 **Bishal Goutam**
 - GitHub: [@bishalgoutam](https://github.com/bishalgoutam)
-- Email: [your-email@example.com]
 
 ## 📄 License
 
